@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Property Validity Checker</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background-image: url('https://cdn.vectorstock.com/i/preview-1x/88/48/check-mark-real-estate-logo-template-vector-24488488.jpg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      color: #333;
+    }
+    .container {
+      background-color: rgba(255, 255, 255, 0.95);
+      padding: 20px;
+      border-radius: 8px;
+      max-width: 700px;
+      margin: auto;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .logo {
+      display: block;
+      max-width: 120px;
+      margin-bottom: 10px;
+    }
+    h1 {
+      margin-top: 0;
+    }
+    .tagline {
+      font-size: 1.1em;
+      color: #555;
+      margin-bottom: 20px;
+      font-style: italic;
+    }
+    input[type="text"] {
+      padding: 10px;
+      width: 100%;
+      max-width: 300px;
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    .result-box {
+      background-color: #fff;
+      padding: 15px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    .invalid {
+      color: red;
+      font-weight: bold;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      padding: 8px;
+      border: 1px solid #ccc;
+      text-align: left;
+    }
+    th {
+      background-color: #eee;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    
+    <h1>🏠 Property Validity Checker</h1>
+    <p class="tagline">Unlock Confidence — Verify Every Listing.</p>
+
+    <input type="text" id="propertySearch" placeholder="Enter Property Code (e.g., P004)" />
+    <div class="result-box" id="resultBox"></div>
+  </div>
+
+  <script>
+    let listings = [];
+
+    fetch("https://api.sheetbest.com/sheets/9d2e4435-c1b9-46f8-8356-9f13dbd840f5")
+      .then(response => response.json())
+      .then(data => {
+        listings = data;
+      })
+      .catch(error => {
+        document.getElementById("resultBox").innerHTML = "<p class='invalid'>Error fetching data.</p>";
+        console.error("Fetch error:", error);
+      });
+
+    document.getElementById("propertySearch").addEventListener("input", function () {
+      const query = this.value.trim().toLowerCase();
+      const match = listings.find(item => item["Property Code"].toLowerCase() === query);
+
+      const resultBox = document.getElementById("resultBox");
+      resultBox.innerHTML = "";
+
+      if (match) {
+        resultBox.innerHTML = `
+          <table>
+ <tr><th>Realtor Code</th><td>${match["Realtor Code"]}</td></tr>          
+ 
+            <tr><th>Property Code</th><td>${match["Property Code"]}</td></tr>
+            <tr><th>Listing</th><td>${match["Listing"]}</td></tr>
+            <tr><th>Phone Number</th><td>${match["Phone Number"]}</td></tr>
+            <tr><th>Email</th><td>${match["Email"]}</td></tr>
+            <tr><th>Price</th><td>${match["Price"]}</td></tr>
+          </table>
+        `;
+      } else if (query !== "") {
+        resultBox.innerHTML = `<p class="invalid">❌ Property Code "${query.toUpperCase()}" is not valid.</p>`;
+      }
+    });
+  </script>
+
+</body>
